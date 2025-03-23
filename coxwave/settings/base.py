@@ -37,14 +37,14 @@ ALLOWED_HOSTS = ['*']
 ROOT_URLCONF = 'coxwave.urls'
 
 ##################################################################
-# Application configuration - for Server
+# Authentication settings
 ##################################################################
-
+# WSGI_APPLICATION = 'coxwave.wsgi.application'
+ASGI_APPLICATION = 'coxwave.asgi.application'
 
 ##################################################################
 # Installed APPs
 ##################################################################
-# Application definition
 # Application definition
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -56,16 +56,20 @@ DJANGO_APPS = [
 ]
 
 PACKAGES = [
+    'daphne',
+    'channels',
     'corsheaders',
     'drf_yasg',
+    'rest_framework',
 ]
 
 COXWAVE_APPS = [
+    'chatbot',
 ]
 
 INSTALLED_APPS = (
-    DJANGO_APPS
-    + PACKAGES
+    PACKAGES
+    + DJANGO_APPS
     + COXWAVE_APPS
 )
 
@@ -74,6 +78,7 @@ INSTALLED_APPS = (
 ##################################################################
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # MIDDLEWARE 최상단의 SecurityMiddleware 다음에 CorsMiddleware 입력
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -94,7 +99,6 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser',
     ],
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
-    'PAGE_SIZE': 50,
 }
 
 ##################################################################
@@ -117,11 +121,6 @@ TEMPLATES = [
         },
     },
 ]
-
-##################################################################
-# Authentication settings
-##################################################################
-WSGI_APPLICATION = 'coxwave.wsgi.application'
 
 ##################################################################
 # Authentication settings
@@ -179,8 +178,8 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-MEDIA_ROOT = os.path.join(COXWAVE_PATH, 'media')
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(COXWAVE_PATH, 'media')
 
 FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
