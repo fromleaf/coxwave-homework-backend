@@ -67,6 +67,7 @@ venv/
 coxwave/settings/local.py
 media/
 static/
+volumes/
 
 # etc
 *.swp
