@@ -79,7 +79,6 @@ class ChatbotMessageConsumerTests(TestCase):
         await communicator.disconnect()
 
     async def test_not_relevant_message(self):
-        test_input = "오늘 저녁에 여의도 가려는데 맛집 추천좀 해줄래?"
         expected_response = {
             "answer": messages.CHATBOT_NAVER_SMARTSTORE_ANSWER_FOR_NOT_RELEVANT_MESSAGE,
             "suggestions": []
@@ -89,7 +88,13 @@ class ChatbotMessageConsumerTests(TestCase):
         connected, _ = await communicator.connect()
         self.assertTrue(connected)
 
-        await communicator.send_to(text_data=test_input)
+        text_data = json.dumps(
+            {
+                "question": "오늘 저녁에 여의도 가려는데 맛집 추천좀 해줄래?",
+                "context_history": []
+            }
+        )
+        await communicator.send_to(text_data=text_data)
         response = await communicator.receive_from()
 
         response_json = json.loads(response)
