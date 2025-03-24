@@ -10,10 +10,6 @@ from pymilvus import (
 )
 
 from coxwave import const
-from coxwave.utils import (
-    util_file,
-    util_openai
-)
 
 MILVUS_HOST = os.getenv('MILVUS_HOST', "localhost")
 MILVUS_PORT = os.getenv('MILVUS_PORT', "19530")
@@ -114,6 +110,3 @@ def filter_by_threshold(candidate_hits, filter_key=None, threshold=0.2):
         if distance <= threshold:
             relevant.append(hit.entity.get(filter_key))
     return relevant
-
-
-
