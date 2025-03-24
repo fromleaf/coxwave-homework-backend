@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.urls import path
 
 from chatbot.consumers import ChatbotMessageConsumer
+from coxwave import const
 from coxwave.const import messages
 
 application = URLRouter(
@@ -22,21 +23,21 @@ class ChatbotMessageConsumerTests(TestCase):
         connected, _ = await communicator.connect()
         self.assertTrue(connected)
 
-        text_data = json.dumps(
-            {
-                "question": "미성년자도 판매 회원 등록이 가능한가요?"
-            }
-        )
+        question_data = {
+            const.KEY_QUESTION: "미성년자도 판매 회원 등록이 가능한가요?"
+        }
+        text_data = json.dumps(question_data)
         await communicator.send_to(text_data=text_data)
         response = await communicator.receive_from()
 
         response_json = json.loads(response)
-        self.assertTrue(response_json["answer"] is not None)
-        self.assertTrue(len(response_json["suggestions"]) > 0)
+        self.assertTrue(response_json[const.KEY_ANSWER] is not None)
+        self.assertTrue(len(response_json[const.KEY_SUGGESTIONS]) > 0)
 
-        print("Chatbot Response\n", response_json["answer"])
+        print("Question\n", question_data[const.KEY_QUESTION])
+        print("\nChatbot Response\n", response_json[const.KEY_ANSWER])
         print("\nSuggestions")
-        for _idx, suggestion in enumerate(response_json["suggestions"], start=1):
+        for _idx, suggestion in enumerate(response_json[const.KEY_SUGGESTIONS], start=1):
             print(f"   - {suggestion}")
 
         await communicator.disconnect()
@@ -56,54 +57,51 @@ class ChatbotMessageConsumerTests(TestCase):
         for question in questions:
             text_data = json.dumps(
                 {
-                    "question": question,
-                    "context_history": context_history
+                    const.KEY_QUESTION: question,
+                    const.KEY_CONTEXT_HISTORY: context_history
                 }
             )
             await communicator.send_to(text_data=text_data)
             response = await communicator.receive_from()
 
             response_json = json.loads(response)
-            self.assertTrue(response_json["answer"] is not None)
-            self.assertTrue(len(response_json["suggestions"]) > 0)
+            self.assertTrue(response_json[const.KEY_ANSWER] is not None)
+            self.assertTrue(len(response_json[const.KEY_SUGGESTIONS]) > 0)
 
             print("Question\n", question)
-            print("\nChatbot Response\n", response_json["answer"])
+            print("\nChatbot Response\n", response_json[const.KEY_ANSWER])
             print("\nSuggestions")
-            for _idx, suggestion in enumerate(response_json["suggestions"], start=1):
+            for _idx, suggestion in enumerate(response_json[const.KEY_SUGGESTIONS], start=1):
                 print(f"   - {suggestion}")
             print("\n")
 
-            context_history.append(f"{question}: {response_json['answer']}")
+            context_history.append(f"{question}: {response_json[const.KEY_ANSWER]}")
 
         await communicator.disconnect()
 
     async def test_not_relevant_message(self):
         expected_response = {
-            "answer": messages.CHATBOT_NAVER_SMARTSTORE_ANSWER_FOR_NOT_RELEVANT_MESSAGE,
-            "suggestions": []
+            const.KEY_ANSWER: messages.CHATBOT_NAVER_SMARTSTORE_ANSWER_FOR_NOT_RELEVANT_MESSAGE,
+            const.KEY_SUGGESTIONS: []
         }
 
         communicator = WebsocketCommunicator(application, "/ws/chat/")
         connected, _ = await communicator.connect()
         self.assertTrue(connected)
 
-        text_data = json.dumps(
-            {
-                "question": "오늘 저녁에 여의도 가려는데 맛집 추천좀 해줄래?",
-                "context_history": []
-            }
-        )
+        question_data = {
+            const.KEY_QUESTION: "오늘 저녁에 여의도 가려는데 맛집 추천좀 해줄래?",
+            const.KEY_CONTEXT_HISTORY: []
+        }
+        text_data = json.dumps(question_data)
         await communicator.send_to(text_data=text_data)
         response = await communicator.receive_from()
 
         response_json = json.loads(response)
-        self.assertEqual(response_json["answer"], expected_response["answer"])
-        self.assertEqual(response_json["suggestions"], expected_response["suggestions"])
+        self.assertEqual(response_json[const.KEY_ANSWER], expected_response[const.KEY_ANSWER])
+        self.assertEqual(response_json[const.KEY_SUGGESTIONS], expected_response[const.KEY_SUGGESTIONS])
 
-        print("Chatbot Response\n", response_json["answer"])
-        print("\nSuggestions")
-        for _idx, suggestion in enumerate(response_json["suggestions"], start=1):
-            print(f"   - {suggestion}")
+        print("Question\n", question_data[const.KEY_QUESTION])
+        print("\nChatbot Response\n", response_json[const.KEY_ANSWER])
 
         await communicator.disconnect()

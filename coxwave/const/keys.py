@@ -1,4 +1,6 @@
 KEY_ANSWER = 'answer'
+KEY_CONTEXT_HISTORY = 'context_history'
 KEY_EMBEDDING = 'embedding'
 KEY_ID = 'id'
 KEY_QUESTION = 'question'
+KEY_SUGGESTIONS = 'suggestions'
