@@ -65,6 +65,7 @@ PACKAGES = [
 
 COXWAVE_APPS = [
     'chatbot',
+    'engine',
 ]
 
 INSTALLED_APPS = (

@@ -77,29 +77,6 @@ def get_query(collection: Collection, query_embedding, top_k=3):
     return results
 
 
-def store_data_to_collection(collection_name=None, data=None):
-    if collection_name is None:
-        raise ValueError("Collection name is required.")
-
-    if data is None:
-        raise ValueError("Data is required.")
-
-    questions = []
-    answers = []
-    for key, value in data.items():
-        questions.append(key)
-        answers.append(value)
-
-    question_embeddings = util_openai.get_embeddings(questions)
-    collection = get_or_create_collection(collection_name)
-    insert_data = [questions, answers, question_embeddings]
-
-    collection.insert(data=insert_data)
-    collection.flush()
-
-    print(f"Data inserted into {collection_name} successfully.")
-
-
 def init_collection(collection_name=None):
     if collection_name is None:
         raise ValueError("Collection name is required.")
@@ -127,15 +104,16 @@ def is_relevant(docs=None, threshold=None):
     return False
 
 
-def filter_questions_by_threshold(candidate_hits, threshold=0.2):
+def filter_by_threshold(candidate_hits, filter_key=None, threshold=0.2):
+    if filter_key is None:
+        raise ValueError("filter_key is required.")
+
     relevant = []
     for hit in candidate_hits:
         distance = hit.distance
         if distance <= threshold:
-            relevant.append(hit.entity.get('question'))
+            relevant.append(hit.entity.get(filter_key))
     return relevant
 
 
-def create_naver_smartstore_faq():
-    data = util_file.load_pickle_file("./data/final_result.pkl")
-    store_data_to_collection("naver_smartstore_faq", data)
+
